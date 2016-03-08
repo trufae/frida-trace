@@ -2,6 +2,93 @@
 
 Trace APIs declaratively through [Frida](http://frida.re).
 
+Also includes a CLI tool for parsing header files and generating JSON:
+
+```sh
+$ ./bin/parse-header.js /usr/include/sqlite3.h | jq '.'
+{
+  "sqlite3_open": [
+    "Int",
+    [
+      [
+        "filename",
+        [
+          [
+            "Pointer",
+            []
+          ],
+          [
+            "Char_S",
+            [
+              "const"
+            ]
+          ]
+        ]
+      ],
+      [
+        "ppDb",
+        [
+          [
+            "Pointer",
+            []
+          ],
+          [
+            "Pointer",
+            []
+          ],
+          [
+            "Typedef",
+            []
+          ]
+        ]
+      ]
+    ]
+  ],
+  "sqlite3_open16": [
+    "Int",
+    [
+      [
+        "filename",
+        [
+          [
+            "Pointer",
+            []
+          ],
+          [
+            "Void",
+            [
+              "const"
+            ]
+          ]
+        ]
+      ],
+      [
+        "ppDb",
+        [
+          [
+            "Pointer",
+            []
+          ],
+          [
+            "Pointer",
+            []
+          ],
+          [
+            "Typedef",
+            []
+          ]
+        ]
+      ]
+    ]
+  ],
+  ...
+}
+```
+
+You may have to patch `node_modules/libclang/lib/dynamic_clang.js` and modify
+line 946 to specify the full path to libclang.dylib, e.g.:
+`/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/libclang`
+
 ## Example
 
 ```js
