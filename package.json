@@ -12,9 +12,11 @@
   },
   "homepage": "https://github.com/viaforensics/frida-trace#readme",
   "scripts": {
+    "frida-trace-generate-boilerplate": "bin/generate-boilerplate.js",
     "frida-trace-parse-header": "bin/parse-header.js"
   },
   "devDependencies": {
+    "concat-stream": "^1.5.1",
     "libclang": "0.0.11"
   }
 }
