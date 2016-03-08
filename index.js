@@ -88,12 +88,13 @@ function traceModuleFunction(module, emit) {
           }
         });
 
-        resolve(retSpec.name);
+        if (retSpec !== null)
+          resolve(retSpec.name);
 
         emit(event);
 
         function resolve(name) {
-          if (name === retSpec.name) {
+          if (retSpec !== null && name === retSpec.name) {
             let value = event.result;
             if (value === undefined) {
               value = retSpec.get(retval, resolve);
