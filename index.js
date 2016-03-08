@@ -6,7 +6,7 @@ const OUT = Symbol('out');
 module.exports = trace;
 
 function trace(spec) {
-  spec.functions.forEach(traceModuleFunction(spec.module, spec.callbacks.onEvent));
+  spec.functions.forEach(traceModuleFunction(spec.module, spec.callbacks.onEvent), spec);
 }
 
 trace.func = func;
@@ -31,9 +31,13 @@ trace.value = {
 
 function traceModuleFunction(module, emit) {
   return function (func) {
+    const spec = this;
+
     const impl = Module.findExportByName(module, func.name);
-    if (impl === null)
-      throw new Error(`Failed to resolve ${module}!${func.name}`);
+    if (impl === null) {
+      spec.callbacks.onError(new Error(`Failed to resolve ${module}!${func.name}`));
+      return;
+    }
 
     const funcName = func.name;
     const argSpecs = func.spec.args;

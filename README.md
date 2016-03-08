@@ -122,6 +122,9 @@ trace({
   callbacks: {
     onEvent(event) {
       console.log('onEvent! ' + JSON.stringify(event, null, 2));
+    },
+    onError(e) {
+      console.error(e);
     }
   }
 });
