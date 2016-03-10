@@ -41,8 +41,8 @@ function apiDescriptionToCode(api) {
   }
 });
 
-function whenResultIsZero(resolve) {
-  return resolve('result') === 0;
+function isZero(value) {
+  return value === 0;
 }
 `;
 }
@@ -66,7 +66,7 @@ function argDescriptionToCode(arg) {
 
   let condition;
   if (direction === 'Out' && this.retType === 'Int')
-    condition = ', whenResultIsZero';
+    condition = `, when('result', isZero)`;
   else
     condition = '';
 
@@ -78,7 +78,7 @@ function retTypeDescriptionToCode(type) {
     return 'null';
   }
 
-  return `retval('result', ${typeDescriptionToCode(type)})`;
+  return `retval(${typeDescriptionToCode(type)})`;
 }
 
 function typeDescriptionToCode(type) {
@@ -87,6 +87,9 @@ function typeDescriptionToCode(type) {
       const pointee = type[1];
       if (pointee[0] === 'Char_S')
         return 'UTF8';
+    } else if (type.length > 2) {
+      if (isPointer(type[1]))
+        return 'pointer(POINTER)';
     }
     return 'POINTER';
   } else {
