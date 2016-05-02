@@ -1,5 +1,5 @@
 {
-  "name": "@viaforensics/frida-trace",
+  "name": "frida-trace",
   "version": "1.0.1",
   "description": "Trace APIs declaratively",
   "main": "index.js",
@@ -17,12 +17,13 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/viaforensics/frida-trace.git"
+    "url": "git+https://github.com/nowsecure/frida-trace.git"
   },
+  "license": "MIT",
   "bugs": {
-    "url": "https://github.com/viaforensics/frida-trace/issues"
+    "url": "https://github.com/nowsecure/frida-trace/issues"
   },
-  "homepage": "https://github.com/viaforensics/frida-trace#readme",
+  "homepage": "https://github.com/nowsecure/frida-trace#readme",
   "scripts": {
     "frida-trace-generate-boilerplate": "bin/generate-boilerplate.js",
     "frida-trace-parse-header": "bin/parse-header.js"

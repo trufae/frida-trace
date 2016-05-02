@@ -2,97 +2,10 @@
 
 Trace APIs declaratively through [Frida](http://frida.re).
 
-Also includes a CLI tool for parsing header files and generating JSON:
-
-```sh
-$ ./bin/parse-header.js /usr/include/sqlite3.h | jq '.'
-{
-  "sqlite3_open": [
-    "Int",
-    [
-      [
-        "filename",
-        [
-          [
-            "Pointer",
-            []
-          ],
-          [
-            "Char_S",
-            [
-              "const"
-            ]
-          ]
-        ]
-      ],
-      [
-        "ppDb",
-        [
-          [
-            "Pointer",
-            []
-          ],
-          [
-            "Pointer",
-            []
-          ],
-          [
-            "Typedef",
-            []
-          ]
-        ]
-      ]
-    ]
-  ],
-  "sqlite3_open16": [
-    "Int",
-    [
-      [
-        "filename",
-        [
-          [
-            "Pointer",
-            []
-          ],
-          [
-            "Void",
-            [
-              "const"
-            ]
-          ]
-        ]
-      ],
-      [
-        "ppDb",
-        [
-          [
-            "Pointer",
-            []
-          ],
-          [
-            "Pointer",
-            []
-          ],
-          [
-            "Typedef",
-            []
-          ]
-        ]
-      ]
-    ]
-  ],
-  ...
-}
-```
-
-You may have to patch `node_modules/libclang/lib/dynamic_clang.js` and modify
-line 946 to specify the full path to libclang.dylib, e.g.:
-`/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/libclang`
-
 ## Example
 
 ```js
-const trace = require('@viaforensics/frida-trace');
+const trace = require('frida-trace');
 
 const func = trace.func;
 const argIn = trace.argIn;
@@ -133,3 +46,40 @@ function isZero(value) {
   return value === 0;
 }
 ```
+
+## Auto-generating boilerplate from header files
+
+```sh
+$ ./bin/parse-header.js /usr/include/sqlite3.h | ./bin/generate-boilerplate.js
+trace({
+  module: 'libfoo.dylib',
+  functions: [
+    func('sqlite3_libversion', retval(UTF8), []),
+    func('sqlite3_sourceid', retval(UTF8), []),
+    func('sqlite3_libversion_number', retval(INT), []),
+    func('sqlite3_compileoption_used', retval(INT), [
+      argIn('zOptName', UTF8)
+    ]),
+    func('sqlite3_compileoption_get', retval(UTF8), [
+      argIn('N', INT)
+    ]),
+    func('sqlite3_threadsafe', retval(INT), []),
+    func('sqlite3_close', retval(INT), [
+      argIn('a1', POINTER)
+    ]),
+    func('sqlite3_close_v2', retval(INT), [
+      argIn('a1', POINTER)
+    ]),
+    func('sqlite3_exec', retval(INT), [
+      argIn('a1', POINTER),
+      argIn('sql', UTF8),
+      argIn('callback', POINTER),
+      argIn('a4', POINTER),
+      argOut('errmsg', pointer(POINTER), when('result', isZero))
+    ]),
+...
+```
+
+You may have to patch `node_modules/libclang/lib/dynamic_clang.js` and modify
+line 946 to specify the full path to libclang.dylib, e.g.:
+`/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/libclang`
