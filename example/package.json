@@ -1,0 +1,22 @@
+{
+  "name": "frida-trace-example",
+  "version": "1.0.0",
+  "description": "Example showing how to use frida-trace",
+  "main": "lib/application.js",
+  "license": "MIT",
+  "scripts": {
+    "prepublish": "npm run build",
+    "build": "frida-compile lib/agent -o lib/_agent.js",
+    "watch": "frida-compile lib/agent -o lib/_agent.js -w"
+  },
+  "dependencies": {
+    "chalk": "^1.1.3",
+    "co": "^4.6.0",
+    "frida": "^7.1.12",
+    "hexy": "^0.2.7"
+  },
+  "devDependencies": {
+    "frida-compile": "^1.0.2",
+    "frida-trace": "^1.0.2"
+  }
+}
