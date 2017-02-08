@@ -20,15 +20,21 @@ trace.bind = bind;
 trace.when = when;
 
 trace.types = {
+  BYTE: byte(),
+  SHORT: short(),
   INT: int(),
   POINTER: pointer(),
   BYTE_ARRAY: byteArray(),
   UTF8: utf8(),
+  UTF16: utf16(),
 
+  byte: byte,
+  short: short,
   int: int,
   pointer: pointer,
   byteArray: byteArray,
   utf8: utf8,
+  utf16: utf16,
 };
 
 function traceModuleFunction(module, emit) {
@@ -268,6 +274,28 @@ function int() {
   };
 }
 
+function byte() {
+  return {
+    parse(rawValue) {
+      return rawValue.toInt32() & 0xff;
+    },
+    read(ptr) {
+      return Memory.readU8(ptr);
+    }
+  };
+}
+
+function short() {
+  return {
+    parse(rawValue) {
+      return rawValue.toInt32() & 0xffff;
+    },
+    read(ptr) {
+      return Memory.readShort(ptr);
+    }
+  };
+}
+
 function pointer(pointee) {
   return {
     parse(rawValue, parameters) {
@@ -298,8 +326,16 @@ function utf8() {
   return pointer({
     read(ptr, parameters) {
       const length = (parameters === undefined) ? -1 : parameters.length;
-
       return Memory.readUtf8String(ptr, length);
+    }
+  });
+}
+
+function utf16() {
+  return pointer({
+    read(ptr, parameters) {
+      const length = (parameters === undefined) ? -1 : parameters.length;
+      return Memory.readUtf16String(ptr, length);
     }
   });
 }
