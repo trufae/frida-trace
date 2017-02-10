@@ -263,17 +263,6 @@ function dependencies(direction, type, condition) {
   return result;
 }
 
-function int() {
-  return {
-    parse(rawValue) {
-      return rawValue.toInt32();
-    },
-    read(ptr) {
-      return Memory.readInt(ptr);
-    }
-  };
-}
-
 function byte() {
   return {
     parse(rawValue) {
@@ -292,6 +281,18 @@ function short() {
     },
     read(ptr) {
       return Memory.readShort(ptr);
+    }
+  };
+}
+
+
+function int() {
+  return {
+    parse(rawValue) {
+      return rawValue.toInt32();
+    },
+    read(ptr) {
+      return Memory.readInt(ptr);
     }
   };
 }
