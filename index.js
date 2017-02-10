@@ -285,7 +285,6 @@ function short() {
   };
 }
 
-
 function int() {
   return {
     parse(rawValue) {
