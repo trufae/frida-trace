@@ -69,9 +69,7 @@ function traceModuleFunction(module, emit) {
 
         const event = new Event(name);
         for (let i = 0; i !== numInputActions; i++) {
-          const item = inputActions[i];
-          const action = item[0];
-          const params = item[1];
+          const [ action, params ] = inputActions[i];
           action(values, event, params);
         }
         if (isFunction(spec.callbacks.onEnter)) {
@@ -88,9 +86,7 @@ function traceModuleFunction(module, emit) {
         values.push(retval);
 
         for (let i = 0; i !== numOutputActions; i++) {
-          const item = outputActions[i];
-          const action = item[0];
-          const params = item[1];
+          const [ action, params ] = outputActions[i];
           action(values, event, params);
         }
         if (isFunction(spec.callbacks.onLeave)) {
@@ -145,9 +141,7 @@ function computeActions(func, inputActions, outputActions) {
 }
 
 function computeAction(arg, index) {
-  const name = arg.name;
-  const type = arg.type;
-  const condition = arg.condition;
+  const { name, type, condition } = arg;
 
   const hasDependentType = isArray(type);
   const hasCondition = condition !== null;
@@ -164,28 +158,20 @@ function computeAction(arg, index) {
 }
 
 function readValue(values, event, params) {
-  const index = params[0];
-  const name = params[1];
-  const parse = params[2];
+  const [ index, name, parse ] = params;
 
   event.set(name, parse(values[index]));
 }
 
 function readValueConditionally(values, event, params) {
-  const index = params[0];
-  const name = params[1];
-  const parse = params[2];
-  const condition = params[3];
+  const [ index, name, parse, condition ] = params;
 
   if (condition.predicate(event.get(condition.value)))
     event.set(name, parse(values[index]));
 }
 
 function readValueWithDependentType(values, event, params) {
-  const index = params[0];
-  const name = params[1];
-  const parse = params[2];
-  const binding = params[3];
+  const [ index, name, parse, binding ] = params;
 
   const typeParameters = {};
   typeParameters[binding.property] = event.get(binding.value);
@@ -193,11 +179,7 @@ function readValueWithDependentType(values, event, params) {
 }
 
 function readValueWithDependentTypeConditionally(values, event, params) {
-  const index = params[0];
-  const name = params[1];
-  const parse = params[2];
-  const binding = params[3];
-  const condition = params[4];
+  const [ index, name, parse, binding, condition ] = params;
 
   if (condition.predicate(event.get(condition.value))) {
     const typeParameters = {};
