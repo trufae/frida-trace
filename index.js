@@ -73,7 +73,7 @@ function traceModuleFunction(module, emit) {
           action(values, event, params);
         }
         if (isFunction(spec.callbacks.onEnter)) {
-          spec.callbacks.onEnter(event);
+          spec.callbacks.onEnter(event, this.context);
         }
 
         this.values = values;
@@ -90,7 +90,7 @@ function traceModuleFunction(module, emit) {
           action(values, event, params);
         }
         if (isFunction(spec.callbacks.onLeave)) {
-          spec.callbacks.onLeave(event);
+          spec.callbacks.onLeave(event, this.context);
         }
 
         emit(event);
