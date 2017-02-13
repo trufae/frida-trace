@@ -72,6 +72,9 @@ function traceModuleFunction(module, emit) {
           const params = item[1];
           action(values, event, params);
         }
+        if (typeof spec.callbacks.onEnter === 'function') {
+          spec.callbacks.onEnter(event);
+        }
 
         this.values = values;
         this.event = event;
