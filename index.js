@@ -1,5 +1,7 @@
 'use strict';
 
+const {isFunction, isArray} = require('lodash');
+
 const IN = Symbol('in');
 const OUT = Symbol('out');
 const IN_OUT = Symbol('in-out');
@@ -72,7 +74,7 @@ function traceModuleFunction(module, emit) {
           const params = item[1];
           action(values, event, params);
         }
-        if (typeof spec.callbacks.onEnter === 'function') {
+        if (isFunction(spec.callbacks.onEnter)) {
           spec.callbacks.onEnter(event);
         }
 
@@ -90,6 +92,9 @@ function traceModuleFunction(module, emit) {
           const action = item[0];
           const params = item[1];
           action(values, event, params);
+        }
+        if (isFunction(spec.callbacks.onLeave)) {
+          spec.callbacks.onLeave(event);
         }
 
         emit(event);
@@ -144,7 +149,7 @@ function computeAction(arg, index) {
   const type = arg.type;
   const condition = arg.condition;
 
-  const hasDependentType = type instanceof Array;
+  const hasDependentType = isArray(type);
   const hasCondition = condition !== null;
 
   if (!hasDependentType && !hasCondition) {
@@ -257,7 +262,7 @@ function dependencies(direction, type, condition) {
   if (direction === OUT)
     result.push('$out');
 
-  if (type instanceof Array)
+  if (isArray(type))
     result.push(type[1].value);
 
   if (condition !== null)
