@@ -43,7 +43,7 @@ function traceModuleFunction (module, emit) {
   return function (func) {
     const name = func.name;
     const spec = this;
-    const { onEnter, onLeave, onError } = spec.callbacks;
+    const {onEnter, onLeave, onError} = spec.callbacks;
 
     const impl = Module.findExportByName(module, name);
     if (impl === null) {
@@ -131,7 +131,9 @@ function computeActions (func, inputActions, outputActions) {
     previousSatisfiedSize = satisfied.size;
 
     args.forEach(function (arg, index) {
-      if (satisfied.has(arg.name)) { return; }
+      if (satisfied.has(arg.name)) {
+        return;
+      }
       const remaining = arg.requires.filter(dep => !satisfied.has(dep));
       if (remaining.length === 0) {
         outputActions.push(computeAction(arg, index));
@@ -149,15 +151,16 @@ function computeAction (arg, index) {
   const hasDependentType = isArray(type);
   const hasCondition = condition !== null;
 
-  if (!hasDependentType && !hasCondition) {
-    return [readValue, [index, name, type.parse]];
-  } else if (!hasDependentType && hasCondition) {
-    return [readValueConditionally, [index, name, type.parse, condition]];
-  } else if (hasDependentType && !hasCondition) {
+  if (hasDependentType) {
+    if (hasCondition) {
+      return [readValueWithDependentTypeConditionally, [index, name, type[0].parse, type[1], condition]];
+    }
     return [readValueWithDependentType, [index, name, type[0].parse, type[1]]];
-  } else if (hasDependentType && hasCondition) {
-    return [readValueWithDependentTypeConditionally, [index, name, type[0].parse, type[1], condition]];
   }
+  if (hasCondition) {
+    return [readValueConditionally, [index, name, type.parse, condition]];
+  }
+  return [readValue, [index, name, type.parse]];
 }
 
 function readValue (values, event, params) {
@@ -245,7 +248,9 @@ function when (value, predicate) {
 function dependencies (direction, type, condition) {
   const result = [];
 
-  if (direction === OUT) { result.push('$out'); }
+  if (direction === OUT) {
+    result.push('$out');
+  }
 
   if (isArray(type)) {
     result.push(type[1].value);
@@ -349,6 +354,8 @@ class Event {
   set (key, value) {
     if (key === 'result') {
       this.result = value;
-    } else { this.args[key] = value; }
+    } else {
+      this.args[key] = value;
+    }
   }
 }
