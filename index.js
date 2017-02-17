@@ -71,7 +71,7 @@ function traceModuleFunction (module, emit) {
 
         const event = new Event(name);
         for (let i = 0; i !== numInputActions; i++) {
-          const [ action, params ] = inputActions[i];
+          const [action, params] = inputActions[i];
           action(values, event, params);
         }
         if (onEnter !== undefined) {
@@ -88,7 +88,7 @@ function traceModuleFunction (module, emit) {
         values.push(retval);
 
         for (let i = 0; i !== numOutputActions; i++) {
-          const [ action, params ] = outputActions[i];
+          const [action, params] = outputActions[i];
           action(values, event, params);
         }
         if (onLeave !== undefined) {
@@ -164,13 +164,13 @@ function computeAction (arg, index) {
 }
 
 function readValue (values, event, params) {
-  const [ index, name, parse ] = params;
+  const [index, name, parse] = params;
 
   event.set(name, parse(values[index]));
 }
 
 function readValueConditionally (values, event, params) {
-  const [ index, name, parse, condition ] = params;
+  const [index, name, parse, condition] = params;
 
   if (condition.predicate(event.get(condition.value))) {
     event.set(name, parse(values[index]));
@@ -178,7 +178,7 @@ function readValueConditionally (values, event, params) {
 }
 
 function readValueWithDependentType (values, event, params) {
-  const [ index, name, parse, binding ] = params;
+  const [index, name, parse, binding] = params;
 
   const typeParameters = {};
   typeParameters[binding.property] = event.get(binding.value);
@@ -186,7 +186,7 @@ function readValueWithDependentType (values, event, params) {
 }
 
 function readValueWithDependentTypeConditionally (values, event, params) {
-  const [ index, name, parse, binding, condition ] = params;
+  const [index, name, parse, binding, condition] = params;
 
   if (condition.predicate(event.get(condition.value))) {
     const typeParameters = {};
