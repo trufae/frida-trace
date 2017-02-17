@@ -1,6 +1,6 @@
 'use strict';
 
-const {isFunction, isArray} = require('lodash');
+const { isArray } = require('lodash');
 
 const IN = Symbol('in');
 const OUT = Symbol('out');
@@ -8,7 +8,7 @@ const IN_OUT = Symbol('in-out');
 
 module.exports = trace;
 
-function trace(spec) {
+function trace (spec) {
   spec.functions.forEach(traceModuleFunction(spec.module, spec.callbacks.onEvent), spec);
 }
 
@@ -36,10 +36,10 @@ trace.types = {
   pointer: pointer,
   byteArray: byteArray,
   utf8: utf8,
-  utf16: utf16,
+  utf16: utf16
 };
 
-function traceModuleFunction(module, emit) {
+function traceModuleFunction (module, emit) {
   return function (func) {
     const name = func.name;
     const spec = this;
@@ -63,10 +63,9 @@ function traceModuleFunction(module, emit) {
     const numOutputActions = outputActions.length;
 
     Interceptor.attach(impl, {
-      onEnter(args) {
+      onEnter (args) {
         const values = [];
-        for (let i = 0; i !== numArgs; i++)
-          values.push(args[i]);
+        for (let i = 0; i !== numArgs; i++) { values.push(args[i]); }
 
         const event = new Event(name);
         for (let i = 0; i !== numInputActions; i++) {
@@ -80,7 +79,7 @@ function traceModuleFunction(module, emit) {
         this.values = values;
         this.event = event;
       },
-      onLeave(retval) {
+      onLeave (retval) {
         const values = this.values;
         const event = this.event;
 
@@ -90,7 +89,7 @@ function traceModuleFunction(module, emit) {
           const [ action, params ] = outputActions[i];
           action(values, event, params);
         }
-        if (_onLeave !== undefined) {
+        if (onLeave !== undefined) {
           onLeave.call(this, event);
         }
 
@@ -100,10 +99,11 @@ function traceModuleFunction(module, emit) {
   };
 }
 
-function computeActions(func, inputActions, outputActions) {
+function computeActions (func, inputActions, outputActions) {
   const args = func.args.slice();
-  if (func.ret !== null)
+  if (func.ret !== null) {
     args.push(func.ret);
+  }
 
   const satisfied = new Set();
   let previousSatisfiedSize;
@@ -112,8 +112,9 @@ function computeActions(func, inputActions, outputActions) {
     previousSatisfiedSize = satisfied.size;
 
     args.forEach(function (arg, index) {
-      if (satisfied.has(arg.name))
+      if (satisfied.has(arg.name)) {
         return;
+      }
       const remaining = arg.requires.filter(dep => !satisfied.has(dep));
       if (remaining.length === 0) {
         inputActions.push(computeAction(arg, index));
@@ -128,8 +129,7 @@ function computeActions(func, inputActions, outputActions) {
     previousSatisfiedSize = satisfied.size;
 
     args.forEach(function (arg, index) {
-      if (satisfied.has(arg.name))
-        return;
+      if (satisfied.has(arg.name)) { return; }
       const remaining = arg.requires.filter(dep => !satisfied.has(dep));
       if (remaining.length === 0) {
         outputActions.push(computeAction(arg, index));
@@ -141,8 +141,8 @@ function computeActions(func, inputActions, outputActions) {
   return !args.some(arg => !satisfied.has(arg.name));
 }
 
-function computeAction(arg, index) {
-  const { name, type, condition } = arg;
+function computeAction (arg, index) {
+  const {name, type, condition} = arg;
 
   const hasDependentType = isArray(type);
   const hasCondition = condition !== null;
@@ -158,20 +158,21 @@ function computeAction(arg, index) {
   }
 }
 
-function readValue(values, event, params) {
+function readValue (values, event, params) {
   const [ index, name, parse ] = params;
 
   event.set(name, parse(values[index]));
 }
 
-function readValueConditionally(values, event, params) {
+function readValueConditionally (values, event, params) {
   const [ index, name, parse, condition ] = params;
 
-  if (condition.predicate(event.get(condition.value)))
+  if (condition.predicate(event.get(condition.value))) {
     event.set(name, parse(values[index]));
+  }
 }
 
-function readValueWithDependentType(values, event, params) {
+function readValueWithDependentType (values, event, params) {
   const [ index, name, parse, binding ] = params;
 
   const typeParameters = {};
@@ -179,7 +180,7 @@ function readValueWithDependentType(values, event, params) {
   event.set(name, parse(values[index], typeParameters));
 }
 
-function readValueWithDependentTypeConditionally(values, event, params) {
+function readValueWithDependentTypeConditionally (values, event, params) {
   const [ index, name, parse, binding, condition ] = params;
 
   if (condition.predicate(event.get(condition.value))) {
@@ -189,7 +190,7 @@ function readValueWithDependentTypeConditionally(values, event, params) {
   }
 }
 
-function func(name, ret, args) {
+function func (name, ret, args) {
   return {
     name: name,
     ret: ret,
@@ -197,19 +198,19 @@ function func(name, ret, args) {
   };
 }
 
-function argIn(name, type, condition) {
+function argIn (name, type, condition) {
   return arg(IN, name, type, condition);
 }
 
-function argOut(name, type, condition) {
+function argOut (name, type, condition) {
   return arg(OUT, name, type, condition);
 }
 
-function argInOut(name, type, condition) {
+function argInOut (name, type, condition) {
   return arg(IN_OUT, name, type, condition);
 }
 
-function arg(direction, name, type, condition) {
+function arg (direction, name, type, condition) {
   condition = condition || null;
 
   return {
@@ -221,110 +222,112 @@ function arg(direction, name, type, condition) {
   };
 }
 
-function retval(type, condition) {
+function retval (type, condition) {
   return argOut('result', type, condition);
 }
 
-function bind(property, value) {
+function bind (property, value) {
   return {
     property: property,
     value: value
   };
 }
 
-function when(value, predicate) {
+function when (value, predicate) {
   return {
     value: value,
     predicate: predicate
   };
 }
 
-function dependencies(direction, type, condition) {
+function dependencies (direction, type, condition) {
   const result = [];
 
-  if (direction === OUT)
-    result.push('$out');
+  if (direction === OUT) { result.push('$out'); }
 
-  if (isArray(type))
+  if (isArray(type)) {
     result.push(type[1].value);
+  }
 
-  if (condition !== null)
+  if (condition !== null) {
     result.push(condition.value);
+  }
 
   return result;
 }
 
-function byte() {
+function byte () {
   return {
-    parse(rawValue) {
+    parse (rawValue) {
       return rawValue.toInt32() & 0xff;
     },
-    read(ptr) {
+    read (ptr) {
       return Memory.readU8(ptr);
     }
   };
 }
 
-function short() {
+function short () {
   return {
-    parse(rawValue) {
+    parse (rawValue) {
       return rawValue.toInt32() & 0xffff;
     },
-    read(ptr) {
+    read (ptr) {
       return Memory.readShort(ptr);
     }
   };
 }
 
-function int() {
+function int () {
   return {
-    parse(rawValue) {
+    parse (rawValue) {
       return rawValue.toInt32();
     },
-    read(ptr) {
+    read (ptr) {
       return Memory.readInt(ptr);
     }
   };
 }
 
-function pointer(pointee) {
+function pointer (pointee) {
   return {
-    parse(rawValue, parameters) {
+    parse (rawValue, parameters) {
       if (pointee) {
-        if (rawValue.isNull())
+        if (rawValue.isNull()) {
           return null;
-        else
+        } else {
           return pointee.read(rawValue, parameters);
+        }
       } else {
         return rawValue;
       }
     },
-    read(ptr) {
+    read (ptr) {
       return Memory.readPointer(ptr);
     }
   };
 }
 
-function byteArray() {
+function byteArray () {
   return pointer({
-    read(ptr, parameters) {
+    read (ptr, parameters) {
       return Memory.readByteArray(ptr, parameters.length);
     }
   });
 }
 
-function utf8() {
+function utf8 () {
   return pointer({
-    read(ptr, parameters) {
+    read (ptr, parameters) {
       const length = (parameters === undefined) ? -1 : parameters.length;
       return Memory.readUtf8String(ptr, length);
     }
   });
 }
 
-function utf16() {
+function utf16 () {
   return pointer({
-    read(ptr, parameters) {
+    read (ptr, parameters) {
       const length = (parameters === undefined) ? -1 : parameters.length;
       return Memory.readUtf16String(ptr, length);
     }
@@ -332,19 +335,18 @@ function utf16() {
 }
 
 class Event {
-  constructor(name) {
+  constructor (name) {
     this.name = name;
     this.args = {};
   }
 
-  get(key) {
+  get (key) {
     return (key === 'result') ? this.result : this.args[key];
   }
 
-  set(key, value) {
-    if (key === 'result')
+  set (key, value) {
+    if (key === 'result') {
       this.result = value;
-    else
-      this.args[key] = value;
+    } else { this.args[key] = value; }
   }
 }
