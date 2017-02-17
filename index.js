@@ -43,17 +43,18 @@ function traceModuleFunction(module, emit) {
   return function (func) {
     const name = func.name;
     const spec = this;
+    const { onEnter, onLeave, onError } = spec.callbacks;
 
     const impl = Module.findExportByName(module, name);
     if (impl === null) {
-      spec.callbacks.onError(new Error(`Failed to resolve ${module}!${name}`));
+      onError(new Error(`Failed to resolve ${module}!${name}`));
       return;
     }
 
     const inputActions = [];
     const outputActions = [];
     if (!computeActions(func, inputActions, outputActions)) {
-      spec.callbacks.onError(new Error(`Oops. It seems ${module}!${name} has circular dependencies.`));
+      onError(new Error(`Oops. It seems ${module}!${name} has circular dependencies.`));
       return;
     }
 
@@ -72,8 +73,8 @@ function traceModuleFunction(module, emit) {
           const [ action, params ] = inputActions[i];
           action(values, event, params);
         }
-        if (isFunction(spec.callbacks.onEnter)) {
-          spec.callbacks.onEnter.call(this, event);
+        if (onEnter !== undefined) {
+          onEnter.call(this, event);
         }
 
         this.values = values;
@@ -89,8 +90,8 @@ function traceModuleFunction(module, emit) {
           const [ action, params ] = outputActions[i];
           action(values, event, params);
         }
-        if (isFunction(spec.callbacks.onLeave)) {
-          spec.callbacks.onLeave.call(this, event);
+        if (_onLeave !== undefined) {
+          onLeave.call(this, event);
         }
 
         emit(event);
