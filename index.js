@@ -1,6 +1,6 @@
 'use strict';
 
-const { isArray } = require('lodash');
+const {isArray} = require('lodash');
 
 const IN = Symbol('in');
 const OUT = Symbol('out');
@@ -65,7 +65,9 @@ function traceModuleFunction (module, emit) {
     Interceptor.attach(impl, {
       onEnter (args) {
         const values = [];
-        for (let i = 0; i !== numArgs; i++) { values.push(args[i]); }
+        for (let i = 0; i !== numArgs; i++) {
+          values.push(args[i]);
+        }
 
         const event = new Event(name);
         for (let i = 0; i !== numInputActions; i++) {
